@@ -33,12 +33,13 @@ Once the application is running, you can access documentation: [http://localhost
 
 ```
 /
-├── app/               # Application package
-│   ├── api/           # API endpoints
-│   │   └── v1/        # API version 1
-│   ├── core/          # Core application functionality
-│   └── models/        # Data models and database schema
-├── main.py            # Application entry point
-├── config.py          # Configuration settings
-└── requirements.txt   # Project dependencies
+├── requirements.txt  # Contains the list of dependencies for the project
+└── src
+    ├── __init__.py   # Marks the directory as a Python package
+    ├── routers       # Contains the FastAPI route handlers
+    ├── services      # Contains business logic and helper functions
+    ├── models        # Defines database models (e.g., ORM classes)
+    ├── db            # Contains the database connection
+    └── main.py       # Main entry point of the FastAPI application
+
 ```
