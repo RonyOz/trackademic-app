@@ -6,8 +6,13 @@ from typing import List, Optional
 class EvaluationActivity(BaseModel):
     name: str                  
     percentage: float           
-    grade: Optional[float] = None 
-    due_date: Optional[datetime] = None
+    grade: Optional[float] = None
+    due_date: Optional[datetime] = None 
+
+class Comment(BaseModel):
+    author_id: str
+    content: str
+    created_at: datetime = datetime.now()
 
 class EvaluationPlan(BaseModel):
     student_id: str             
@@ -16,8 +21,4 @@ class EvaluationPlan(BaseModel):
     activities: List[EvaluationActivity]
     average: Optional[float] = None 
     created_at: datetime = datetime.now()
-    
-class Comment(BaseModel):
-    author_id: str
-    content: str
-    created_at: datetime = datetime.now()
+    Comments: List[Comment] = []

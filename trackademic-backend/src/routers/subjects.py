@@ -19,4 +19,4 @@ def put_endpoint():
 
 @router.delete("/")
 def delete_endpoint():
-    return {"message": "DELETE request to /subjects endpoint"} 
+    return {"message": "DELETE request to /subjects endpoint"}
