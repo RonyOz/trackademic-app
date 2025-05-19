@@ -1,13 +1,22 @@
 from fastapi import APIRouter
+from src.services.EvaluationPlanService import (get_All, get_by_student_id)
+from src.models.student_data import EvaluationPlan
+from typing import List
 
 router = APIRouter(
     prefix="/plans",
     tags=["plans"],
 )
 
-@router.get("/")
+#GET ALL
+@router.get("/", response_model=List[EvaluationPlan])
 def get_endpoint():
-    return {"message": "GET request to /plans endpoint"}
+    return get_All() #AGREGAR EXEPCIONES???
+
+#GET BY STUDENT ID
+@router.get("/student/{student_id}", response_model=List[EvaluationPlan])
+def get_byStudent_endpoint(student_id: str):
+    return get_by_student_id(student_id) #AGREGAR EXEPCIONES???
 
 @router.post("/")
 def post_endpoint():
