@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from src.services.EvaluationPlanService import (get_All, get_by_student_id)
-from src.models.student_data import EvaluationPlan
+from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan)
+from src.models.student_data import EvaluationPlan, EvaluationActivity
 from typing import List
 
 router = APIRouter(
@@ -18,14 +18,16 @@ def get_endpoint():
 def get_byStudent_endpoint(student_id: str):
     return get_by_student_id(student_id) #AGREGAR EXEPCIONES???
 
-@router.post("/")
+#CREATE EVALUATION PLAN (WITHOUT ACTIVITIES)
+@router.post("/", response_model=EvaluationPlan)
 def post_endpoint():
-    return {"message": "POST request to /plans endpoint"}
+    return create_evaluation_plan(EvaluationPlan)
 
-@router.put("/")
-def put_endpoint():
-    return {"message": "PUT request to /plans endpoint"}
+#ADD ACTIVITIES TO EVALUATION PLAN
+@router.put("/activities/{subject_code}", response_model=EvaluationPlan)
+def put_endpoint(subject_code: str, activities: List[EvaluationActivity]):
+    return add_activities_to_plan(subject_code, activities)
 
-@router.delete("/")
-def delete_endpoint():
-    return {"message": "DELETE request to /plans endpoint"} 
+@router.delete("/{subject_code}")
+def delete_endpoint(subject_code: str):
+    return delete_evaluation_plan(subject_code) 
