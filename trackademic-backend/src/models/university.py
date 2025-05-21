@@ -22,7 +22,7 @@ class Area(Base):
     code = Column(Integer, primary_key=True)
     name = Column(String(20))
 
-# Tabla adicional para vincular estudiantes
+# Tabla adicional para almacenar estudiantes
 class Student(Base):
     __tablename__ = 'students'
     id = Column(String(15), primary_key=True)

@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from .routers import auth, students, grades, evaluation_plans
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI(title="Trackademic API")
 
