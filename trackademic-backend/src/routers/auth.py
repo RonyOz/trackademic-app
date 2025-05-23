@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from ..models.university import Student
 
-from ..services.student_sevice import (createStudent, getStudentByEmail)
+from ..services.student_service import (createStudent, getStudentByEmail)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
