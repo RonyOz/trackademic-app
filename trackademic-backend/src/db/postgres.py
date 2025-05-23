@@ -5,10 +5,14 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 
-DATABASE_URL = os.getenv("SUPABASE_DB_URL")
+# DATABASE_URL = os.getenv("SUPABASE_DB_URL")
 
-if not DATABASE_URL:
-    raise ValueError("SUPABASE_DB_URL no está definido en las variables de entorno")
+# if not DATABASE_URL:
+#     raise ValueError("SUPABASE_DB_URL no está definido en las variables de entorno")
+
+# engine = create_engine(DATABASE_URL)
+
+DATABASE_URL = "postgresql://postgres:qJrTT5JzXjab259P@db.njxhlrmoinbjadcgtyut.supabase.co:5432/postgres"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
