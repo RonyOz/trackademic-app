@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
 from ..models.university import Student
-from ..db.postgres import get_db 
+
+from ..services.student_sevice import (createStudent, getStudentByEmail)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -23,8 +23,8 @@ class UserOut(BaseModel):
     full_name: str
 
 @router.post("/register", response_model=UserOut)
-def register(user: UserRegister, db: Session = Depends(get_db)):
-    existing_user = db.query(Student).filter(Student.email == user.email).first()
+def register(user: UserRegister):
+    existing_user = getStudentByEmail(user.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -36,21 +36,20 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         password=hashed_password,
         full_name=user.full_name
     )
-
-    db.add(new_student)
-    db.commit()
-    db.refresh(new_student)
+    
+    user_out = createStudent(new_student)
     
     return UserOut(
-        id=new_student.id,
-        email=new_student.email,
-        full_name=new_student.full_name
+        id=user_out.id,
+        email=user_out.email,
+        full_name=user_out.full_name
     )
 
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.email == form_data.username).first()
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    student = getStudentByEmail(form_data.username)
+
     if not student or not pwd_context.verify(form_data.password, student.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"access_token": student.email, "token_type": "bearer"}
