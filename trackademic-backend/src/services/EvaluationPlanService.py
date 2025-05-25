@@ -12,6 +12,19 @@ def get_All() -> List[EvaluationPlan]:
     evaluation_plans = db.evaluation_plans.find()
     return [EvaluationPlan(**plan) for plan in evaluation_plans]
 
+def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPlan:
+    """
+    Get a specific evaluation plan by student ID, subject code, and semester.
+    """
+    evaluation_plan = db.evaluation_plans.find_one({
+        "student_id": student_id,
+        "subject_code": subject_code,
+        "semester": semester
+    })
+    if not evaluation_plan:
+        raise HTTPException(status_code=404, detail="Evaluation plan not found")
+    return EvaluationPlan(**evaluation_plan)
+
 def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
     """
     Get evaluation plans by student ID.
@@ -36,14 +49,15 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     db.evaluation_plans.insert_one(evaluation_plan.model_dump())
     return evaluation_plan
 
-def add_activities_to_plan(subject_code: str, semester: str, activities: List[EvaluationActivity]) -> EvaluationPlan:
+def add_activities_to_plan(subject_code: str, semester: str, student_id: str,  activities: List[EvaluationActivity]) -> EvaluationPlan:
     """
     Add activities to an existing evaluation plan filtered by subject_code and semester.
     Validates that the sum of activity percentages is exactly 100%.
     """
     evaluation_plan = db.evaluation_plans.find_one({
         "subject_code": subject_code,
-        "semester": semester
+        "semester": semester,
+        "student_id": student_id
     })
     if not evaluation_plan:
         raise HTTPException(status_code=404, detail="Evaluation plan not found for given subject and semester")
@@ -63,11 +77,15 @@ def add_activities_to_plan(subject_code: str, semester: str, activities: List[Ev
     updated_plan = db.evaluation_plans.find_one({"subject_code": subject_code, "semester": semester})
     return EvaluationPlan(**updated_plan)
 
-def delete_evaluation_plan(subject_code: str) -> str:
+def delete_evaluation_plan(subject_code: str, semester: str, student_id: str) -> str:
     """
     Delete an evaluation plan by subject code.
     """
-    result = db.evaluation_plans.delete_one({"subject_code": subject_code})
+    result = db.evaluation_plans.delete_one({
+        "subject_code": subject_code,
+        "semester": semester,
+        "student_id": student_id
+        })
     if result.deleted_count == 0:
         raise ValueError("Evaluation plan not found")
     return f"Evaluation plan with subject code {subject_code} deleted successfully"
