@@ -46,7 +46,6 @@ def add_comment_endpoint(
         raise HTTPException(status_code=404, detail="Plan de evaluación no encontrado o error agregando comentario")
     return {"message": "Comentario agregado exitosamente"}
 
-#ADD ACTIVITIES TO EVALUATION PLAN
 @router.put("/activities/{semester}/{subject_code}/{student_id}", response_model=EvaluationPlan)
 def put_activities_endpoint(
     subject_code: str,
@@ -62,8 +61,6 @@ def put_activities_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Puede haber varios planes por materia, por lo que se puede eliminar un plan equivocado
-# "{subject_code}/{student_id}/"
 @router.delete("/{semester}/{subject_code}/{student_id}", response_model=str)
 def delete_endpoint(subject_code: str, semester: str, student_id: str):
     return delete_evaluation_plan(subject_code, semester, student_id) 
