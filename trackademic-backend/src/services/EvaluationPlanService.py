@@ -54,3 +54,42 @@ def delete_evaluation_plan(subject_code: str) -> str:
         raise ValueError("Evaluation plan not found")
     return f"Evaluation plan with subject code {subject_code} deleted successfully"
 
+def calculate_average(plan: dict) -> float:
+    activities = plan.get("activities", [])
+    total = 0.0
+    accumulated_percentage = 0.0
+
+    for activity in activities:
+        grade = activity.get("grade")
+        percentage = activity.get("percentage", 0.0)
+
+        if grade is not None:
+            total += grade * (percentage / 100.0)
+            accumulated_percentage += percentage
+
+    return total if accumulated_percentage > 0 else None
+
+def calculate_minimum_grade(plan: dict, target_average: float = 3.0) -> float:
+    """
+    Calculate the minimum grade needed in the last activity to achieve the target average.
+    """
+    activities = plan.get("activities", [])
+    total_percentage = 0.0
+    total_weighted_grades = 0.0
+
+    for activity in activities[:-1]:  # Exclude the last activity
+        grade = activity.get("grade")
+        percentage = activity.get("percentage", 0.0)
+
+        if grade is not None:
+            total_weighted_grades += grade * (percentage / 100.0)
+            total_percentage += percentage
+
+    last_activity_percentage = activities[-1].get("percentage", 0.0)
+    if last_activity_percentage == 0:
+        raise ValueError("Last activity percentage cannot be zero")
+
+    # Calculate the minimum grade needed in the last activity
+    required_grade = (target_average - total_weighted_grades) / (last_activity_percentage / 100.0)
+    
+    return required_grade
