@@ -20,8 +20,8 @@ def get_byStudent_endpoint(student_id: str):
 
 #CREATE EVALUATION PLAN (WITHOUT ACTIVITIES)
 @router.post("/", response_model=EvaluationPlan)
-def post_endpoint():
-    return create_evaluation_plan(EvaluationPlan)
+def post_endpoint(plan: EvaluationPlan):
+    return create_evaluation_plan(plan)
 
 #ADD ACTIVITIES TO EVALUATION PLAN
 @router.put("/activities/{subject_code}", response_model=EvaluationPlan)

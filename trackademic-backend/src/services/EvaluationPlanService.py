@@ -21,7 +21,7 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     Create a new evaluation plan in the database.
     """
     evaluation_plan.average = calculate_average(evaluation_plan)
-    db.evaluation_plans.insert_one(evaluation_plan.dict())
+    db.evaluation_plans.insert_one(evaluation_plan.model_dump())
     return evaluation_plan
 
 def add_activities_to_plan(subject_code: str, activities: List[EvaluationActivity]) -> EvaluationPlan:
