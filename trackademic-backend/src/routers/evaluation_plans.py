@@ -1,10 +1,9 @@
-from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan)
 from fastapi import APIRouter, Path, HTTPException, Body, Query
-from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan)
-from src.models.student_data import EvaluationPlan, EvaluationActivity
-from src.models.student_data import CommentIn
-from src.services.EvaluationPlanService import add_comment_to_plan, get_plan
-from src.services.EvaluationPlanService import estimate_required_grade
+
+from src.services.EvaluationPlanService import get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan, add_comment_to_plan, get_plan, estimate_required_grade
+
+from src.models.student_data import EvaluationPlan, EvaluationActivity, CommentIn
+
 from typing import List
 
 router = APIRouter(
