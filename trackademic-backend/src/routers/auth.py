@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..models.university import Student
+from ..models.student_data import Student
 
 from ..services.student_service import (createStudent, getStudentByEmail)
 
@@ -45,10 +45,14 @@ def register(user: UserRegister):
         full_name=user_out.full_name
     )
 
-
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    student = getStudentByEmail(form_data.username)
+    student_data = getStudentByEmail(form_data.username)
+
+    if not student_data:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    student = Student(**student_data)
 
     if not student or not pwd_context.verify(form_data.password, student.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")

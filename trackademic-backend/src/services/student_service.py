@@ -13,7 +13,7 @@ def createStudent(student):
             raise ValueError(f"Missing required field: {field}")
 
     # Check for duplicate student_id or email
-    if db.students.find_one({"student_id": student.student_id}):
+    if db.students.find_one({"id": student.id}):
         raise ValueError("Student with this student_id already exists.")
     if db.students.find_one({"email": student.email}):
         raise ValueError("Student with this email already exists.")
@@ -28,3 +28,5 @@ def getStudentByEmail(email: str):
     student = db.students.find_one({"email": email})
     if not student:
         raise ValueError("Student not found.")
+
+    return student

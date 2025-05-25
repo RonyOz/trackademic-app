@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import List, Optional
 
@@ -22,3 +22,9 @@ class EvaluationPlan(BaseModel):
     average: Optional[float] = None 
     created_at: datetime = datetime.now()
     Comments: List[Comment] = []
+    
+class Student(BaseModel):
+    id: str
+    email: EmailStr
+    password: str
+    full_name: str

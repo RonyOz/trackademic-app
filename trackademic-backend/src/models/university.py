@@ -31,11 +31,3 @@ class Faculty(Base):
     code = Column(Integer, primary_key=True)
     name = Column(String(20))
     areas = relationship("Area", back_populates="faculty")
-
-# Tabla adicional para almacenar estudiantes en mongoDB
-class Student(Base):
-    __tablename__ = 'students'
-    id = Column(String(15), primary_key=True)
-    email = Column(String, unique=True)
-    password = Column(String)
-    full_name = Column(String)
