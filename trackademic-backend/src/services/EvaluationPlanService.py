@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from src.models.student_data import EvaluationPlan, EvaluationActivity
 from src.db.mongo import db
 from typing import List
@@ -118,3 +119,34 @@ def calculate_minimum_grade(plan: dict, target_average: float = 3.0) -> float:
     required_grade = (target_average - total_weighted_grades) / (last_activity_percentage / 100.0)
     
     return required_grade
+
+def update_activity_in_plan(student_id: str, subject_code: str, activity_name: str, new_data: dict) -> dict:
+    """
+    Update an activity in an existing evaluation plan.
+    """
+    plan = db.evaluation_plans.find_one({
+        "student_id": student_id,
+        "subject_code": subject_code
+    })
+
+    if not plan:
+        raise HTTPException(status_code=404, detail="Evaluation plan not found")
+
+    activities = plan.get("activities", [])
+    updated = False
+
+    for i, activity in enumerate(activities):
+        if activity.get("name") == activity_name:
+            activities[i].update(new_data)
+            updated = True
+            break
+
+    if not updated:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    db.evaluation_plans.update_one(
+        {"_id": plan["_id"]},
+        {"$set": {"activities": activities}}
+    )
+
+    return {"message": "Activity updated successfully"}

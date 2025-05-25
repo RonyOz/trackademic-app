@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code)
+from fastapi import APIRouter, Body
+from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan)
 from src.models.student_data import EvaluationPlan, EvaluationActivity
 from typing import List
 
@@ -25,11 +25,17 @@ def post_endpoint(plan: EvaluationPlan):
     return create_evaluation_plan(plan)
 
 # Pueden haber varios planes por materia, por lo que se puede agregar actividades a un plan equivocado
+# "{subject_code}/{student_id}/activities/"
 @router.put("/activities/{subject_code}", response_model=EvaluationPlan)
 def put_endpoint(subject_code: str, activities: List[EvaluationActivity]):
     return add_activities_to_plan(subject_code, activities)
 
 # Puede haber varios planes por materia, por lo que se puede eliminar un plan equivocado
+# "{subject_code}/{student_id}/"
 @router.delete("/{subject_code}")
 def delete_endpoint(subject_code: str):
     return delete_evaluation_plan(subject_code) 
+
+@router.patch("/{subject_code}/{student_id}/activities")
+def patch_activity(subject_code: str, student_id: str, name: str = Body(..., embed=True), new_data: dict = Body(..., embed=True)):
+    return update_activity_in_plan(student_id, subject_code, name, new_data)
