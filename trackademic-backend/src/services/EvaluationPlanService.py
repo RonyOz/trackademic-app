@@ -1,4 +1,5 @@
 from src.models.student_data import EvaluationPlan, EvaluationActivity
+from src.services.EvaluationPlanService import calculate_average
 from src.db.mongo import db
 from typing import List
 
@@ -8,7 +9,6 @@ def get_All() -> List[EvaluationPlan]:
     """
     evaluation_plans = db.evaluation_plans.find()
     return [EvaluationPlan(**plan) for plan in evaluation_plans]
-
 
 def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
     """
@@ -21,6 +21,7 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     """
     Create a new evaluation plan in the database.
     """
+    evaluation_plan.average = calculate_average(evaluation_plan)
     db.evaluation_plans.insert_one(evaluation_plan.dict())
     return evaluation_plan
 
@@ -38,6 +39,7 @@ def add_activities_to_plan(subject_code: str, activities: List[EvaluationActivit
         raise ValueError("Total percentage of activities must be 100%")
 
     # Update the evaluation plan with new activities
+    evaluation_plan.average = calculate_average(evaluation_plan)
     db.evaluation_plans.update_one(
         {"subject_code": subject_code},
         {"$addToSet": {"activities": {"$each": activities}}}
@@ -54,20 +56,35 @@ def delete_evaluation_plan(subject_code: str) -> str:
         raise ValueError("Evaluation plan not found")
     return f"Evaluation plan with subject code {subject_code} deleted successfully"
 
-def calculate_average(plan: dict) -> float:
-    activities = plan.get("activities", [])
-    total = 0.0
-    accumulated_percentage = 0.0
+def calculate_average(plan) -> float:
+    if isinstance(plan, dict):
+        activities = plan.get("activities", [])
+        total = 0.0
+        accumulated_percentage = 0.0
 
-    for activity in activities:
-        grade = activity.get("grade")
-        percentage = activity.get("percentage", 0.0)
+        for activity in activities:
+            grade = activity.get("grade")
+            percentage = activity.get("percentage", 0.0)
 
-        if grade is not None:
-            total += grade * (percentage / 100.0)
-            accumulated_percentage += percentage
+            if grade is not None:
+                total += grade * (percentage / 100.0)
+                accumulated_percentage += percentage
 
-    return total if accumulated_percentage > 0 else None
+        return total if accumulated_percentage > 0 else None
+    elif isinstance(plan, EvaluationPlan):
+        activities = plan.activities
+        total = 0.0
+        accumulated_percentage = 0.0
+
+        for activity in activities:
+            grade = activity.grade
+            percentage = activity.percentage
+
+            if grade is not None:
+                total += grade * (percentage / 100.0)
+                accumulated_percentage += percentage
+
+        return total if accumulated_percentage > 0 else None
 
 def calculate_minimum_grade(plan: dict, target_average: float = 3.0) -> float:
     """
