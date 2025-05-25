@@ -16,6 +16,15 @@ def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
     evaluation_plans = db.evaluation_plans.find({"student_id": student_id})
     return [EvaluationPlan(**plan) for plan in evaluation_plans]
 
+def get_by_subject_code(subject_code: str) -> List[EvaluationPlan]:
+    """
+    Get evaluation plans by subject code.
+    """
+    evaluation_plans = list(db.evaluation_plans.find({"subject_code": subject_code}))
+    if not evaluation_plans:
+        return []
+    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+
 def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     """
     Create a new evaluation plan in the database.
