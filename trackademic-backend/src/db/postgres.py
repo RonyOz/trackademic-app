@@ -1,26 +1,27 @@
-import os
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 load_dotenv()
+import os
 
-# Conexión Supabase
-def get_engine():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        raise ValueError("error using .env")
-    
-    return create_engine(db_url)
+# DATABASE_URL = os.getenv("SUPABASE_DB_URL")
 
-# Configuración
-engine = get_engine()
+# if not DATABASE_URL:
+#     raise ValueError("SUPABASE_DB_URL no está definido en las variables de entorno")
+
+# engine = create_engine(DATABASE_URL)
+
+DATABASE_URL = "postgresql://postgres:qJrTT5JzXjab259P@db.njxhlrmoinbjadcgtyut.supabase.co:5432/postgres"
+
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
 def get_db():
     db = SessionLocal()
     try:
-        return db
+        yield db
     finally:
         db.close()

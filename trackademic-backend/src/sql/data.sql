@@ -82,3 +82,19 @@ INSERT INTO GROUPS (number, semester, subject_code, professor_id) VALUES
 (1, '2023-2', 'S101', '1001'),
 (2, '2023-2', 'S102', '1003'),
 (3, '2023-2', 'S103', '1004');
+
+------- NEW TABLE ---------------
+
+CREATE TABLE STUDENTS (
+    id VARCHAR(25) PRIMARY KEY,
+    email VARCHAR NOT NULL UNIQUE,
+    password VARCHAR NOT NULL,
+    full_name VARCHAR
+);
+
+INSERT INTO STUDENTS (id, email, password, full_name) VALUES
+('A00000001', 'student1@example.com', '$2a$12$GuHF0QlthQCpLI.iesCgoOG/M87ziEaphjFL3rSEmIrf6Awrrw1Gi', 'Mariana Agudelo'), -- Contraseña : 123456
+('A00000002', 'student2@example.com', '$2a$12$GuHF0QlthQCpLI.iesCgoOG/M87ziEaphjFL3rSEmIrf6Awrrw1Gi', 'Natalia Vargas'), -- Contraseña : 123456
+('A00000003', 'student3@example.com', '$2a$12$GuHF0QlthQCpLI.iesCgoOG/M87ziEaphjFL3rSEmIrf6Awrrw1Gi', 'Vanessa Sanchez Morales'), -- Contraseña : 123456
+('A00000004', 'student4@example.com', '$2a$12$GuHF0QlthQCpLI.iesCgoOG/M87ziEaphjFL3rSEmIrf6Awrrw1Gi', 'Sebastián Erazo 8A'), -- Contraseña : 123456
+('A00000005', 'student5@example.com', '$2a$12$GuHF0QlthQCpLI.iesCgoOG/M87ziEaphjFL3rSEmIrf6Awrrw1Gi', 'Rony Ordoñez'); -- Contraseña : 123456  
