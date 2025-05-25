@@ -1,5 +1,4 @@
 from src.models.student_data import EvaluationPlan, EvaluationActivity
-from src.services.EvaluationPlanService import calculate_average
 from src.db.mongo import db
 from typing import List
 
