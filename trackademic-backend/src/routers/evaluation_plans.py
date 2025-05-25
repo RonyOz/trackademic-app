@@ -16,7 +16,7 @@ router = APIRouter(
 def get_endpoint():
     return get_All()
 
-@router.get("/{student_id}/{subject_code}/{semester}", response_model=EvaluationPlan)
+@router.get("/{semester}/{subject_code}/{student_id}", response_model=EvaluationPlan)
 def get_plan_endpoint(
     student_id: str = Path(..., description="ID del estudiante"),
     subject_code: str = Path(..., description="Código de la asignatura"),
@@ -47,7 +47,7 @@ def add_comment_endpoint(
     return {"message": "Comentario agregado exitosamente"}
 
 #ADD ACTIVITIES TO EVALUATION PLAN
-@router.put("/activities/{subject_code}/{semester}/{student_id}", response_model=EvaluationPlan)
+@router.put("/activities/{semester}/{subject_code}/{student_id}", response_model=EvaluationPlan)
 def put_activities_endpoint(
     subject_code: str,
     semester: str,
@@ -64,7 +64,7 @@ def put_activities_endpoint(
 
 # Puede haber varios planes por materia, por lo que se puede eliminar un plan equivocado
 # "{subject_code}/{student_id}/"
-@router.delete("/{subject_code}/{semester}/{student_id}", response_model=str)
+@router.delete("/{semester}/{subject_code}/{student_id}", response_model=str)
 def delete_endpoint(subject_code: str, semester: str, student_id: str):
     return delete_evaluation_plan(subject_code, semester, student_id) 
 
