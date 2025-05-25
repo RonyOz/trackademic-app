@@ -1,6 +1,10 @@
-from fastapi import APIRouter, Body
 from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan)
+from fastapi import APIRouter, Path, HTTPException, Body, Query
+from src.services.EvaluationPlanService import (get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan)
 from src.models.student_data import EvaluationPlan, EvaluationActivity
+from src.models.student_data import CommentIn
+from src.services.EvaluationPlanService import add_comment_to_plan
+from src.services.EvaluationPlanService import estimate_required_grade
 from typing import List
 
 router = APIRouter(
@@ -24,11 +28,30 @@ def get_by_subject_endpoint(subject_code: str):
 def post_endpoint(plan: EvaluationPlan):
     return create_evaluation_plan(plan)
 
-# Pueden haber varios planes por materia, por lo que se puede agregar actividades a un plan equivocado
-# "{subject_code}/{student_id}/activities/"
-@router.put("/activities/{subject_code}", response_model=EvaluationPlan)
-def put_endpoint(subject_code: str, activities: List[EvaluationActivity]):
-    return add_activities_to_plan(subject_code, activities)
+@router.post("/{plan_id}/comments")
+def add_comment_endpoint(
+    plan_id: str = Path(..., description="ID del plan de evaluación"),
+    comment: CommentIn = ...
+):
+    success = add_comment_to_plan(plan_id, comment)
+    if not success:
+        raise HTTPException(status_code=404, detail="Plan de evaluación no encontrado o error agregando comentario")
+    return {"message": "Comentario agregado exitosamente"}
+
+#ADD ACTIVITIES TO EVALUATION PLAN
+@router.put("/activities/{subject_code}/{semester}", response_model=EvaluationPlan)
+def put_activities_endpoint(
+    subject_code: str,
+    semester: str,
+    activities: List[EvaluationActivity] = Body(...)
+):
+    try:
+        updated_plan = add_activities_to_plan(subject_code, semester, activities)
+        return updated_plan
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Puede haber varios planes por materia, por lo que se puede eliminar un plan equivocado
 # "{subject_code}/{student_id}/"
@@ -39,3 +62,11 @@ def delete_endpoint(subject_code: str):
 @router.patch("/{subject_code}/{student_id}/activities")
 def patch_activity(subject_code: str, student_id: str, name: str = Body(..., embed=True), new_data: dict = Body(..., embed=True)):
     return update_activity_in_plan(student_id, subject_code, name, new_data)
+
+@router.get("/estimate-grade", response_model=float)
+def estimate_grade_endpoint(
+    student_id: str = Query(..., description="ID del estudiante"),
+    subject_code: str = Query(..., description="Código de la asignatura"),
+    semester: str = Query(..., description="Semestre")
+):
+    return estimate_required_grade(student_id, subject_code, semester)

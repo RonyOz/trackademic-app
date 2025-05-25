@@ -28,3 +28,7 @@ class Student(BaseModel):
     email: EmailStr
     password: str
     full_name: str
+
+class CommentIn(BaseModel):
+    author_id: str
+    content: str

@@ -1,6 +1,8 @@
+from src.models.student_data import EvaluationPlan, EvaluationActivity, CommentIn
 from fastapi import HTTPException
-from src.models.student_data import EvaluationPlan, EvaluationActivity
 from src.db.mongo import db
+from datetime import datetime
+from bson import ObjectId
 from typing import List
 
 def get_All() -> List[EvaluationPlan]:
@@ -34,27 +36,32 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     db.evaluation_plans.insert_one(evaluation_plan.model_dump())
     return evaluation_plan
 
-def add_activities_to_plan(subject_code: str, activities: List[EvaluationActivity]) -> EvaluationPlan:
+def add_activities_to_plan(subject_code: str, semester: str, activities: List[EvaluationActivity]) -> EvaluationPlan:
     """
-    Add activities to an existing evaluation plan.
+    Add activities to an existing evaluation plan filtered by subject_code and semester.
+    Validates that the sum of activity percentages is exactly 100%.
     """
-    evaluation_plan = db.evaluation_plans.find_one({"subject_code": subject_code})
+    evaluation_plan = db.evaluation_plans.find_one({
+        "subject_code": subject_code,
+        "semester": semester
+    })
     if not evaluation_plan:
-        raise ValueError("Evaluation plan not found")
+        raise HTTPException(status_code=404, detail="Evaluation plan not found for given subject and semester")
     
-    #Check 100% in activities
     total_percentage = sum(activity.percentage for activity in activities)
-    if total_percentage != 100:
-        raise ValueError("Total percentage of activities must be 100%")
+    if abs(total_percentage - 100) > 0.01:
+        raise HTTPException(status_code=400, detail=f"Total percentage of activities must be 100%, but got {total_percentage}%")
 
     # Update the evaluation plan with new activities
     evaluation_plan.average = calculate_average(evaluation_plan)
+    # Actualiza el plan reemplazando actividades completas
     db.evaluation_plans.update_one(
-        {"subject_code": subject_code},
-        {"$addToSet": {"activities": {"$each": activities}}}
+        {"subject_code": subject_code, "semester": semester},
+        {"$set": {"activities": [activity.dict() for activity in activities]}}
     )
     
-    return EvaluationPlan(**evaluation_plan)  # Return the updated evaluation plan
+    updated_plan = db.evaluation_plans.find_one({"subject_code": subject_code, "semester": semester})
+    return EvaluationPlan(**updated_plan)
 
 def delete_evaluation_plan(subject_code: str) -> str:
     """
@@ -150,3 +157,79 @@ def update_activity_in_plan(student_id: str, subject_code: str, activity_name: s
     )
 
     return {"message": "Activity updated successfully"}
+
+def add_comment_to_plan(plan_id: str, comment: CommentIn) -> bool:
+    """
+    Add a comment to an existing evaluation plan by its ID.
+    """
+    plan = db.evaluation_plans.find_one({"_id": ObjectId(plan_id)})
+    if not plan:
+        return False
+
+    comment_doc = {
+        "author_id": comment.author_id,
+        "content": comment.content,
+        "created_at": datetime.utcnow()
+    }
+
+    result = db.evaluation_plans.update_one(
+        {"_id": ObjectId(plan_id)},
+        {"$push": {"Comments": comment_doc}}
+    )
+
+    return result.modified_count == 1
+
+def estimate_required_grade(student_id: str, subject_code: str, semester: str, passing_grade: float = 3.0) -> float:
+    """
+    Estima la nota mínima promedio que el estudiante debe obtener en actividades pendientes para aprobar la asignatura.
+    Retorna:
+      - Nota mínima requerida en pendientes si es posible.
+      - 0 si ya ha aprobado con notas actuales.
+      - -1 si es imposible alcanzar la nota mínima.
+    """
+    plan = db.evaluation_plans.find_one({
+        "student_id": student_id,
+        "subject_code": subject_code,
+        "semester": semester
+    })
+
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan de evaluación no encontrado para ese estudiante, curso y semestre")
+
+    activities = plan.get("activities", [])
+
+    total_weighted_score = 0.0
+    total_weight_completed = 0.0
+    total_weight_pending = 0.0
+
+    for activity in activities:
+        percentage = activity.get("percentage", 0)
+        grade = activity.get("grade")
+        if grade is not None:
+            total_weighted_score += grade * (percentage / 100)
+            total_weight_completed += (percentage / 100)
+        else:
+            total_weight_pending += (percentage / 100)
+
+    # Si ya todas las notas están ingresadas
+    if total_weight_completed == 1.0:
+        return 0.0 if total_weighted_score >= passing_grade else -1.0
+
+    # Nota que falta para aprobar
+    remaining_needed = passing_grade - total_weighted_score
+
+    if remaining_needed <= 0:
+        return 0.0  # Ya aprobó
+
+    if total_weight_pending == 0:
+        return -1.0  # No hay pendientes, no puede aprobar
+
+    required_grade_pending = remaining_needed / total_weight_pending
+
+    if required_grade_pending > 5.0:  # Asumiendo escala 0-5
+        return -1.0
+
+    if required_grade_pending < 0:
+        return 0.0
+
+    return required_grade_pending
