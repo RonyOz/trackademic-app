@@ -46,7 +46,7 @@ def add_comment_endpoint(
         raise HTTPException(status_code=404, detail="Plan de evaluación no encontrado o error agregando comentario")
     return {"message": "Comentario agregado exitosamente"}
 
-@router.put("/activities/{semester}/{subject_code}/{student_id}", response_model=EvaluationPlan)
+@router.put("/{semester}/{subject_code}/{student_id}/activities", response_model=EvaluationPlan)
 def put_activities_endpoint(
     subject_code: str,
     semester: str,
@@ -65,9 +65,9 @@ def put_activities_endpoint(
 def delete_endpoint(subject_code: str, semester: str, student_id: str):
     return delete_evaluation_plan(subject_code, semester, student_id) 
 
-@router.patch("/{subject_code}/{student_id}/activities")
-def patch_activity(subject_code: str, student_id: str, name: str = Body(..., embed=True), new_data: dict = Body(..., embed=True)):
-    return update_activity_in_plan(student_id, subject_code, name, new_data)
+@router.patch("/{semester}/{subject_code}/{student_id}/activities")
+def patch_activity(semester:str, subject_code: str, student_id: str, name: str = Body(..., embed=True), new_data: dict = Body(..., embed=True)):
+    return update_activity_in_plan(semester, student_id, subject_code, name, new_data)
 
 @router.get("/estimate-grade", response_model=float)
 def estimate_grade_endpoint(

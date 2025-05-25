@@ -145,13 +145,14 @@ def calculate_minimum_grade(plan: dict, target_average: float = 3.0) -> float:
     
     return required_grade
 
-def update_activity_in_plan(student_id: str, subject_code: str, activity_name: str, new_data: dict) -> dict:
+def update_activity_in_plan(semester:str ,student_id: str, subject_code: str, activity_name: str, new_data: dict) -> dict:
     """
     Update an activity in an existing evaluation plan.
     """
     plan = db.evaluation_plans.find_one({
         "student_id": student_id,
-        "subject_code": subject_code
+        "subject_code": subject_code,
+        "semester": semester
     })
 
     if not plan:
