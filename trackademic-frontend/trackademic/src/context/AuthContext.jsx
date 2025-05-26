@@ -13,8 +13,13 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const login = (userData) => {
-    setUser(userData)
-  }
+  const payload = JSON.parse(atob(userData.token.split('.')[1]))
+  setUser({
+    token: userData.token,
+    id: payload.sub, // normalmente FastAPI guarda el ID en "sub"
+  })
+}
+
 
   const logout = () => {
     localStorage.removeItem('token')

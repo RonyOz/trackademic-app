@@ -4,7 +4,8 @@ import { loginRequest } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
 const LoginPage = () => {
-  const [document, setDocument] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -12,13 +13,13 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await loginRequest(document)
-      const token = res.data.token
+      const res = await loginRequest({ email, password })
+      const token = res.data.access_token
       localStorage.setItem('token', token)
-      login({ document, token }) // Guardamos en contexto
+      login({ token })
       navigate('/dashboard')
     } catch (err) {
-      setError('Documento inválido o usuario no registrado.')
+      setError('Correo o contraseña inválidos')
     }
   }
 
@@ -28,11 +29,19 @@ const LoginPage = () => {
         <h1 className="text-2xl font-bold mb-4">Iniciar Sesión</h1>
         {error && <div className="text-error mb-2">{error}</div>}
         <input
-          type="text"
-          placeholder="Número de documento"
+          type="email"
+          placeholder="Correo electrónico"
           className="input input-bordered w-full mb-4"
-          value={document}
-          onChange={(e) => setDocument(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          className="input input-bordered w-full mb-4"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <button type="submit" className="btn btn-primary w-full">Ingresar</button>

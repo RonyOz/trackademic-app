@@ -17,6 +17,9 @@ const App = () => {
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
+      <Route path="plans/:semester/:subjectCode" element={<PlanDetailPage />} />
+      <Route path="plans/new" element={<CreatePlanPage />} />
+
     </Routes>
   )
 }
