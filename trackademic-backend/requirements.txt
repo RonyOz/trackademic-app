@@ -1,6 +1,6 @@
 annotated-types==0.7.0
 anyio==4.9.0
-bcrypt<4.1.0
+bcrypt==4.0.1
 certifi==2025.4.26
 click==8.2.0
 colorama==0.4.6
@@ -28,6 +28,7 @@ pydantic_core==2.33.2
 Pygments==2.19.1
 pymongo==4.13.0
 python-dotenv==1.1.0
+python-jose==3.4.0
 python-multipart==0.0.20
 PyYAML==6.0.2
 rich==14.0.0
