@@ -13,3 +13,13 @@ def get_all(session: Session) -> List[Faculty]:
             .joinedload(Program.subjects)
     ).all()
     return faculties
+
+def get_subject_name_by_code(session: Session, code: str) -> str:
+    """
+    Get the subject name by its code.
+    """
+    subject = session.query(Subject).filter(Subject.code == code).first()
+    if subject:
+        return subject.name
+    else:
+        raise ValueError(f"Subject with code {code} not found.")

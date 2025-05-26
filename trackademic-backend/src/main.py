@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import auth, evaluation_plans, university
+from .routers import auth, evaluation_plans, university, report
 from dotenv import load_dotenv
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,5 +28,4 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(university.router)
 app.include_router(evaluation_plans.router)
-
-
+app.include_router(report.router)
