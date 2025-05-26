@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from src.db.mongo import db
 from datetime import datetime
 from bson import ObjectId
-from typing import List
+from typing import List, Tuple, Optional
 
 def get_All() -> List[EvaluationPlan]:
     """
@@ -252,3 +252,63 @@ def estimate_required_grade(student_id: str, subject_code: str, semester: str, p
         return 0.0
 
     return required_grade_pending
+
+def comments_mean(student_id: str):
+    plans = db.evaluation_plans.find({"student_id": student_id})
+    total_comments = 0
+    for plan in plans:
+        total_comments += len(plan.get("Comments", []))
+    return total_comments
+
+def comments_by_plan(plan: EvaluationPlan):
+    """
+    Returns the number of comments in a specific evaluation plan.
+    """
+    return len(plan.Comments) if plan and plan.Comments else 0
+
+def get_plan_and_commentNumber(student_id: str) -> List[dict]:
+    """
+    Get evaluation plans and the number of comments for each plan.
+    """
+    plans = get_by_student_id(student_id)
+    result = []
+    for plan in plans:
+        comment_count = comments_by_plan(plan)
+        result.append({
+            "plan": plan,
+            "comment_count": comment_count
+        })
+    return result
+
+def get_highest_percentage_activity(plan: EvaluationPlan) -> Optional[EvaluationActivity]:
+    if not plan.activities:
+        return None
+    return max(plan.activities, key=lambda activity: activity.percentage)
+
+
+def ordered_plans(semester: str) -> List[EvaluationPlan]:
+
+    plans = db.evaluation_plans.find({
+        "semester": semester
+    }).sort("subject_code")
+
+    result = [EvaluationPlan(**plan) for plan in plans]
+
+    result.sort(
+        key=lambda x: max((a.percentage for a in x.activities), default=0),
+        reverse=True
+    )
+
+    return result
+
+
+
+def ordered_plans_with_top_activity(semester: str) -> List[Tuple[EvaluationPlan, Optional[EvaluationActivity]]]:
+    plans = ordered_plans(semester)
+    result = []
+
+    for plan in plans:
+        top_activity = get_highest_percentage_activity(plan)
+        result.append((plan, top_activity))
+
+    return result
