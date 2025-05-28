@@ -9,9 +9,18 @@ API.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  config.headers['Content-Type'] = 'application/json'
   return config
 })
 
+
+export const registerRequest = (data) => {
+  return API.post('/auth/register', data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+}
 
 export const loginRequest = (formData) => {
   const data = new URLSearchParams()
@@ -22,15 +31,21 @@ export const loginRequest = (formData) => {
   return API.post('/auth/login', data)
 }
 
-export const registerRequest = (data) => {
-  return API.post('/auth/register', data)
-}
+
 
 
 export const getEvaluationPlan = (semester, subjectCode, studentId) => {
   return API.get(`/plans/${semester}/${subjectCode}/${studentId}`)
 }
+export const getPlansByStudent = (studentId) => {
+  return API.get(`/plans/student/${studentId}`)
+}
+
 
 export const createPlan = (planData) => {
   return API.post('/plans/', planData)
+}
+
+export const updateActivity = (semester, subjectCode, studentId, activityUpdate) => {
+  return API.patch(`/plans/${semester}/${subjectCode}/${studentId}/activities`, activityUpdate)
 }

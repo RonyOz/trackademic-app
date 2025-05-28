@@ -4,6 +4,8 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardHome from './pages/DashboardHome'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedLayout from './layouts/ProtectedLayout'
+import PlanDetailPage from './pages/PlanDetailPage'
+import CreatePlanPage from './pages/CreatePlanPage'
 
 const App = () => {
   return (
