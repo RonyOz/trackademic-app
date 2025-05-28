@@ -52,6 +52,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not student_data:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    print("Contraseña guardada en BD:", student_data["password"])
+    print("Contraseña enviada:", form_data.password)
+    print("Verificación:", pwd_context.verify(form_data.password, student_data["password"]))
     student = Student(**student_data)
 
     if not student or not pwd_context.verify(form_data.password, student.password):

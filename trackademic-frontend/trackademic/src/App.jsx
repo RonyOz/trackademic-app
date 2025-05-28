@@ -1,28 +1,36 @@
+//src/App.jsx
+
 import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import DashboardHome from './pages/DashboardHome'
+import DashboardPage from './pages/DashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedLayout from './layouts/ProtectedLayout'
 import PlanDetailPage from './pages/PlanDetailPage'
 import CreatePlanPage from './pages/CreatePlanPage'
+import EstimadorPage from './pages/EstimadorPage'
+import Navbar from './components/Navbar'
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <Route path="/dashboard/*" element={<ProtectedLayout />}>
-        <Route index element={<DashboardHome />} />
-      </Route>
+        {/* Rutas protegidas */}
+        <Route path="/dashboard/*" element={<ProtectedLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="plan/:semester/:subjectCode" element={<PlanDetailPage />} />
+          <Route path="crear-plan" element={<CreatePlanPage />} />
+          <Route path="estimador" element={<EstimadorPage />} />
+        </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
-      <Route path="plans/:semester/:subjectCode" element={<PlanDetailPage />} />
-      <Route path="plans/new" element={<CreatePlanPage />} />
-
-    </Routes>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   )
 }
 

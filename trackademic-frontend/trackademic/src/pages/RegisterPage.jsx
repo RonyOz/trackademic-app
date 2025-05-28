@@ -29,6 +29,10 @@ const RegisterPage = () => {
     }
   };
 
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
+
   return (
   <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
     <div className="card w-full max-w-sm shadow-xl backdrop-blur-sm bg-white/10 hover:shadow-2xl transition-shadow duration-300 rounded-2xl">
@@ -119,7 +123,7 @@ const RegisterPage = () => {
 
         <label className="label justify-center mt-4">
           <span className="text-sm text-gray-300">¿Ya tienes cuenta?</span>
-          <a href="/login" className="text-purple-400 hover:text-purple-300 ml-2 transition-colors duration-300 cursor-pointer">
+          <a onClick={handleLoginClick} className="text-purple-400 hover:text-purple-300 ml-2 transition-colors duration-300 cursor-pointer">
             Inicia sesión
           </a>
         </label>

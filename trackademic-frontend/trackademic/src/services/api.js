@@ -9,9 +9,28 @@ API.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  config.headers['Content-Type'] = 'application/json'
+
+  // Solo establecer 'Content-Type: application/json' si no es /auth/login
+  if (config.url !== '/auth/login') {
+    config.headers['Content-Type'] = 'application/json'
+  }
+
   return config
 })
+
+
+export const loginRequest = (formData) => {
+  const data = new URLSearchParams();
+  data.append("username", formData.email); 
+  data.append("password", formData.password);
+  data.append("grant_type", "password");
+
+  return API.post("/auth/login", data, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+};
 
 
 export const registerRequest = (data) => {
@@ -22,17 +41,15 @@ export const registerRequest = (data) => {
   })
 }
 
-export const loginRequest = (formData) => {
-  const data = new URLSearchParams()
-  data.append('username', formData.email)
-  data.append('password', formData.password)
-  data.append('grant_type', 'password') // obligatorio para FastAPI OAuth2PasswordRequestForm
-
-  return API.post('/auth/login', data)
-}
-
-
-
+export const getEstimatedGrades = (student_id, subject_code, semester) => {
+  return API.get('/plans/estimate-grade', {
+    params: {
+      student_id,
+      subject_code,
+      semester,
+    },
+  });
+};
 
 export const getEvaluationPlan = (semester, subjectCode, studentId) => {
   return API.get(`/plans/${semester}/${subjectCode}/${studentId}`)
