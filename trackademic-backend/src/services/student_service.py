@@ -26,7 +26,5 @@ def getStudentByEmail(email: str):
     Get a student by their ID.
     """
     student = db.students.find_one({"email": email})
-    if not student:
-        raise ValueError("Student not found.")
 
     return student
