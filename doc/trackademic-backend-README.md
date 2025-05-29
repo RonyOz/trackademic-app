@@ -131,4 +131,18 @@ trackademic-backend/
   `GET /reports/percentages/{semester}`  
 
 - **Universidad:**  
-  `GET /university/` - Información de facultades, áreas, programas y materias  
+  `GET /university/` - Información de facultades, áreas, programas y materias
+
+  ## Flujo de la Aplicación
+
+1. **Registro y Login:**  
+   El usuario se registra (`POST /auth/register`) y luego inicia sesión (`POST /auth/login`), recibiendo un token JWT para autenticarse.
+
+2. **Gestión de Planes:**  
+   Consulta planes (`GET /plans/`), crea nuevos (`POST /plans/`), agrega comentarios y actualiza actividades.
+
+3. **Reportes Académicos:**  
+   Solicita consolidación de notas y reportes de comentarios y porcentajes de actividades.
+
+4. **Información Universitaria:**  
+   Consulta facultades, áreas, programas y materias (`GET /university/`).
