@@ -27,9 +27,9 @@ const LoginPage = () => {
       return;
     }
 
-    // Guarda el token
-    localStorage.setItem("token", token);
-    login({ email }); // actualiza contexto si usas AuthContext
+    // The token is already part of res.data.access_token
+    // The AuthContext's login function will handle localStorage.
+    login(res.data); // Pass the whole response data to AuthContext
     navigate("/dashboard");
   } catch (err) {
     console.error("Error en login:", err.response?.data || err.message);

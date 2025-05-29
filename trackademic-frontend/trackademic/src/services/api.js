@@ -89,3 +89,7 @@ export const addCommentToPlan = (planId, comment) => {
   return API.post(`/plans/${planId}/comments`, comment)
 }
 
+
+export const getAllUniversityData = () => {
+  return API.get('/universities/')
+}

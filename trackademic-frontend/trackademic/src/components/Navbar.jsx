@@ -18,7 +18,7 @@ const Navbar = () => {
     <div className="navbar bg-base-100 px-6 shadow-md">
       {/* Logo */}
       <div className="flex-1">
-        <Link to="/" className="text-2xl font-bold text-white italic ">
+        <Link to="/dashboard" className="text-2xl font-bold text-white italic ">
           Trackademic
         </Link>
       </div>

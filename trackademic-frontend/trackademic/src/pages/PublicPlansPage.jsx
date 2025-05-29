@@ -2,35 +2,50 @@ import { useEffect, useState } from "react";
 import { getAllPlans, addCommentToPlan } from "../services/api";
 import { calcularPromedio, getAverageColorClass } from "../utils/grades";
 import Sidebar from "../components/Sidebar";
+import { useAuth } from "../context/AuthContext";
 
 const PublicPlansPage = () => {
   const [plans, setPlans] = useState([]);
   const [commentText, setCommentText] = useState({});
+  const { student_id } = useAuth();
 
   useEffect(() => {
-    getAllPlans().then((res) => setPlans(res.data));
-    console.log(plans.map((p) => p.id));
+    console.log("Current student_id:", student_id);
+    getAllPlans().then((res) => {
+      console.log("First plan object:", res.data[0]); // Add this
+      setPlans(res.data);
+    });
   }, []);
+
 
   const handleCommentChange = (key, value) => {
     setCommentText((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleCommentSubmit = async (planId, key) => {
-    const content = commentText[key]?.trim();
-    const author_id = localStorage.getItem("student_id");
+  const handleCommentSubmit = async (plan, key) => {
+  const content = commentText[key]?.trim();
+  const author_id = localStorage.getItem("student_id"); // Make sure this matches your storage key
 
-    if (!content) return alert("Escribe un comentario antes de enviarlo.");
+  if (!content) return alert("Escribe un comentario antes de enviarlo.");
+  if (!author_id) return alert("No se pudo identificar al estudiante.");
 
-    try {
-      await addCommentToPlan(planId, { author_id, content });
-      alert("Comentario enviado");
-      setCommentText((prev) => ({ ...prev, [key]: "" }));
-    } catch (err) {
-      console.error("Error al enviar comentario:", err);
-      alert("Ocurrió un error.");
-    }
-  };
+  try {
+    // Create a composite ID from existing fields
+    const planId = `${plan.subject_code}-${plan.semester}-${plan.student_id}`;
+    
+    await addCommentToPlan(planId, { 
+      author_id,  // Now properly included
+      content 
+    });
+    
+    alert("Comentario enviado");
+    setCommentText((prev) => ({ ...prev, [key]: "" }));
+  } catch (err) {
+    console.error("Error details:", err.response?.data);
+    alert(`Error: ${err.response?.data?.detail || err.message}`);
+  }
+};
+
 
   return (
     <div className="flex">
@@ -45,9 +60,10 @@ const PublicPlansPage = () => {
         ) : (
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
             {plans.map((plan, index) => {
-              const key = `${plan.subject_code}-${plan.semester}-${plan.student_id}-${index}`;
+              const key = `${plan.subject_code}-${plan.semester}-${plan.student_id}-${index}`; // solo para comentario local
               const promedio = calcularPromedio(plan.activities);
               const promedioClass = getAverageColorClass(promedio);
+              
 
               return (
                 <div
@@ -85,12 +101,12 @@ const PublicPlansPage = () => {
                           handleCommentChange(key, e.target.value)
                         }
                       />
-                      <button
-                        className="btn bg-cyan-400 btn-sm mt-2 text-base-100"
-                        onClick={() => handleCommentSubmit(key, key)}
-                      >
-                        Enviar Comentario
-                      </button>
+<button
+  className="btn bg-cyan-400 btn-sm mt-2 text-base-100"
+  onClick={() => handleCommentSubmit(plan, key)} // Pass the whole plan object
+>
+  Enviar Comentario
+</button>
                     </div>
                   </div>
                 </div>

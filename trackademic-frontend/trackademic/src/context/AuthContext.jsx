@@ -7,24 +7,49 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      setUser({ token, id: token }); // Usa el email como ID temporal
+    const storedUserId = localStorage.getItem("userId"); // Assuming you'd store the actual user ID
+    const storedSemester = localStorage.getItem("semester"); // Store semester as well
+
+    if (token && storedUserId && storedSemester) {
+      setUser({
+        token: token,
+        id: storedUserId, // Use the actual user ID if available
+        semester: storedSemester, // Load semester from local storage
+      });
+    } else if (token) {
+      // Fallback if only token is stored, but ideally, all user data should be stored
+      // This part might need adjustment based on how your backend provides user ID and semester.
+      // For now, if only token, assume token is the ID (as before), and semester is unknown.
+      // You'll need to fetch semester or have it in the initial login.
+      setUser({ token, id: token });
     }
   }, []);
 
   const login = (userData) => {
-    const token = userData.token || userData.access_token || userData.email;
+    const token = userData.token || userData.access_token;
+    const userId = userData.id || userData.user_id; // Adjust based on your API response
+    const userSemester = userData.semester || userData.user_semester; // Adjust based on your API response
 
-    if (!token) return;
+    if (!token || !userId || !userSemester) { // Ensure all necessary data is present
+      console.warn("Missing token, user ID, or semester in login data.");
+      return;
+    }
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("userId", userId); // Store user ID
+    localStorage.setItem("semester", userSemester); // Store semester
 
     setUser({
       token: token,
-      id: token, // puedes usar `token` como ID si es el email
+      id: userId,
+      semester: userSemester,
     });
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("semester"); // Remove semester on logout
     setUser(null);
   };
 

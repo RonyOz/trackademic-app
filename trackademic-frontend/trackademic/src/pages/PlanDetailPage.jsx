@@ -7,7 +7,7 @@ import {
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/Sidebar";
-import { calcularPromedio, tieneNotasPendientes, getAverageColorClass } from "../utils/grades";
+import { calcularPromedio, getAverageColorClass } from "../utils/grades";
 import { Pencil, Trash } from "lucide-react";
 
 const PlanDetailPage = () => {
