@@ -10,12 +10,13 @@ def get_All() -> List[EvaluationPlan]:
     Get all evaluation plans from the database.
     """
     evaluation_plans = db.evaluation_plans.find()
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    result = []
+    for plan in evaluation_plans:
+        plan['_id'] = str(plan['_id'])  # Convert ObjectId to string
+        result.append(EvaluationPlan(**plan))
+    return result
 
 def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPlan:
-    """
-    Get a specific evaluation plan by student ID, subject code, and semester.
-    """
     evaluation_plan = db.evaluation_plans.find_one({
         "student_id": student_id,
         "subject_code": subject_code,
@@ -23,6 +24,9 @@ def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPla
     })
     if not evaluation_plan:
         raise HTTPException(status_code=404, detail="Evaluation plan not found")
+    
+    # Convert ObjectId to string explicitly
+    evaluation_plan['_id'] = str(evaluation_plan['_id'])
     return EvaluationPlan(**evaluation_plan)
 
 def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
@@ -30,7 +34,7 @@ def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
     Get evaluation plans by student ID.
     """
     evaluation_plans = db.evaluation_plans.find({"student_id": student_id})
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    return [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in evaluation_plans]
 
 def get_by_subject_code(subject_code: str) -> List[EvaluationPlan]:
     """
@@ -39,7 +43,7 @@ def get_by_subject_code(subject_code: str) -> List[EvaluationPlan]:
     evaluation_plans = list(db.evaluation_plans.find({"subject_code": subject_code}))
     if not evaluation_plans:
         return []
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    return [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in evaluation_plans]
 
 def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     """
@@ -58,7 +62,11 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
 
     evaluation_plan.average = calculate_average(evaluation_plan)
     db.evaluation_plans.insert_one(evaluation_plan.model_dump())
-    return evaluation_plan
+
+    inserted_id = db.evaluation_plans.insert_one(evaluation_plan.model_dump()).inserted_id
+    created_plan = db.evaluation_plans.find_one({"_id": inserted_id})
+    created_plan['_id'] = str(created_plan['_id'])
+    return created_plan
 
 def add_activities_to_plan(subject_code: str, semester: str, student_id: str,  activities: List[EvaluationActivity]) -> EvaluationPlan:
     """
@@ -86,6 +94,7 @@ def add_activities_to_plan(subject_code: str, semester: str, student_id: str,  a
     )
     
     updated_plan = db.evaluation_plans.find_one({"subject_code": subject_code, "semester": semester})
+    updated_plan['_id'] = str(updated_plan['_id'])
     return EvaluationPlan(**updated_plan)
 
 def delete_evaluation_plan(subject_code: str, semester: str, student_id: str) -> str:
@@ -188,6 +197,32 @@ def update_activity_in_plan(semester:str ,student_id: str, subject_code: str, ac
 
     return {"message": "Activity updated successfully"}
 
+def delete_activity_from_plan(semester: str, student_id: str, subject_code: str, activity_name: str) -> dict:
+    """
+    Delete an activity from an evaluation plan.
+    """
+    plan = db.evaluation_plans.find_one({
+        "student_id": student_id,
+        "subject_code": subject_code,
+        "semester": semester
+    })
+
+    if not plan:
+        raise HTTPException(status_code=404, detail="Evaluation plan not found")
+
+    activities = plan.get("activities", [])
+    updated_activities = [a for a in activities if a.get("name") != activity_name]
+
+    if len(updated_activities) == len(activities):
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    db.evaluation_plans.update_one(
+        {"_id": plan["_id"]},
+        {"$set": {"activities": updated_activities}}
+    )
+
+    return {"message": "Activity deleted successfully"}
+
 def add_comment_to_plan(plan_id: str, comment: CommentIn) -> bool:
     """
     Add a comment to an existing evaluation plan by its ID.
@@ -261,6 +296,11 @@ def estimate_required_grade(student_id: str, subject_code: str, semester: str, p
 
     if required_grade_pending < 0:
         return 0.0
+    
+    has_recorded_grades = any(activity.get("grade") is not None for activity in activities)
+    
+    if not has_recorded_grades:
+        return -2.0  # Special code for "no grades recorded yet"
 
     return required_grade_pending
 
@@ -303,7 +343,7 @@ def ordered_plans(semester: str) -> List[EvaluationPlan]:
         "semester": semester
     }).sort("subject_code")
 
-    result = [EvaluationPlan(**plan) for plan in plans]
+    result = [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in plans]
 
     result.sort(
         key=lambda x: max((a.percentage for a in x.activities), default=0),

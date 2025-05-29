@@ -22,6 +22,7 @@ class UserOut(BaseModel):
     email: EmailStr
     full_name: str
 
+
 @router.post("/register", response_model=UserOut)
 def register(user: UserRegister):
     existing_user = getStudentByEmail(user.email)
@@ -45,15 +46,31 @@ def register(user: UserRegister):
         full_name=user_out.full_name
     )
 
-@router.post("/login")
+
+@router.post("/login") 
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     student_data = getStudentByEmail(form_data.username)
 
     if not student_data:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    print("Contraseña guardada en BD:", student_data["password"])
+    print("Contraseña enviada:", form_data.password)
+    print("Verificación:", pwd_context.verify(form_data.password, student_data["password"]))
+    
+    # Re-instantiate the student object from the dictionary returned by getStudentByEmail
+    # This assumes student_data contains 'id' and 'semester' if they exist in the DB.
     student = Student(**student_data)
 
     if not student or not pwd_context.verify(form_data.password, student.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return {"access_token": student.email, "token_type": "bearer"}
+    
+    # --- FIX STARTS HERE ---
+    # Assuming student.id are available from the Student object
+    
+    return {
+        "access_token": student.email, 
+        "token_type": "bearer",
+        "id": student.id,           # Include the actual student ID
+    }
+    # --- FIX ENDS HERE ---
