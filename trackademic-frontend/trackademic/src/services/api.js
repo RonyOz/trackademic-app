@@ -1,3 +1,5 @@
+//src/services/api.js
+
 import axios from 'axios'
 
 const API = axios.create({
@@ -66,3 +68,24 @@ export const createPlan = (planData) => {
 export const updateActivity = (semester, subjectCode, studentId, activityUpdate) => {
   return API.patch(`/plans/${semester}/${subjectCode}/${studentId}/activities`, activityUpdate)
 }
+
+export const getGradeConsolidation = (studentId, semester) => {
+  return API.get(`/reports/grades-consolidation/${studentId}/${semester}`)
+}
+
+export const getPercentageReport = (semester) => {
+  return API.get(`/reports/percentages/${semester}`)
+}
+
+export const getCommentsReport = (studentId) => {
+  return API.get(`/reports/comments/${studentId}`)
+}
+
+export const getAllPlans = () => {
+  return API.get('/plans/')
+}
+
+export const addCommentToPlan = (planId, comment) => {
+  return API.post(`/plans/${planId}/comments`, comment)
+}
+

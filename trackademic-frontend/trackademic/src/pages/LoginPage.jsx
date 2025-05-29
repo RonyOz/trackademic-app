@@ -106,7 +106,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading} 
-              className={`btn w-full transition-all duration-300 ${loading ? "bg-purple-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700 text-white"}`}
+              className={`btn w-full transition-all duration-300 ${loading ? "bg-cyan-400 cursor-not-allowed" : "bg-cyan-600 hover:bg-cyan-700 text-white"}`}
             >
               {loading ? (
                 <span className="loading loading-spinner loading-sm text-white"></span> 
@@ -120,7 +120,7 @@ const LoginPage = () => {
             <span className="text-sm text-gray-300">¿No tienes cuenta?</span>
             <a
               onClick={handleRegisterClick}
-              className="text-purple-400 hover:text-purple-300 ml-2 transition-colors duration-300 cursor-pointer"
+              className="text-cyan-400 hover:text-cyan-300 ml-2 transition-colors duration-300 cursor-pointer"
             >
               Regístrate aquí
             </a>

@@ -8,7 +8,9 @@ import NotFoundPage from './pages/NotFoundPage'
 import ProtectedLayout from './layouts/ProtectedLayout'
 import PlanDetailPage from './pages/PlanDetailPage'
 import CreatePlanPage from './pages/CreatePlanPage'
-import EstimadorPage from './pages/EstimadorPage'
+import ReportsPage from './pages/ReportsPage'
+import PublicPlansPage from './pages/PublicPlansPage'
+
 import Navbar from './components/Navbar'
 
 const App = () => {
@@ -25,7 +27,9 @@ const App = () => {
           <Route index element={<DashboardPage />} />
           <Route path="plan/:semester/:subjectCode" element={<PlanDetailPage />} />
           <Route path="crear-plan" element={<CreatePlanPage />} />
-          <Route path="estimador" element={<EstimadorPage />} />
+          <Route path="reportes" element={<ReportsPage />} />
+          <Route path="planes-publicos" element={<PublicPlansPage />} />
+
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

@@ -115,7 +115,7 @@ const RegisterPage = () => {
         <div className="w-full">
           <button
             type="submit"
-            className="btn bg-purple-600 hover:bg-purple-700 text-white w-full transition-all duration-300"
+            className="btn bg-cyan-600 hover:bg-cyan-700 text-white w-full transition-all duration-300"
           >
             Crear cuenta
           </button>
@@ -123,7 +123,7 @@ const RegisterPage = () => {
 
         <label className="label justify-center mt-4">
           <span className="text-sm text-gray-300">¿Ya tienes cuenta?</span>
-          <a onClick={handleLoginClick} className="text-purple-400 hover:text-purple-300 ml-2 transition-colors duration-300 cursor-pointer">
+          <a onClick={handleLoginClick} className="text-cyan-400 hover:text-cyan-300 ml-2 transition-colors duration-300 cursor-pointer">
             Inicia sesión
           </a>
         </label>
