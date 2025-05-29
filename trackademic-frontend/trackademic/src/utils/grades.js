@@ -51,6 +51,13 @@ export const calcularNotaMinima = (actividades) => {
   const conNota = actividades.filter((a) => !isNaN(a.grade) && a.grade > 0);
   const sinNota = actividades.filter((a) => isNaN(a.grade) || a.grade === 0);
 
+  const hasRecordedGrades = actividades.some(a => a.grade !== null && !isNaN(a.grade));
+  
+  if (!hasRecordedGrades) {
+    return -2; // Special code for "no grades recorded yet"
+  }
+
+
   const notaActual = conNota.reduce(
     (acc, a) => acc + (a.grade * a.percentage) / 100,
     0

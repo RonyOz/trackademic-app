@@ -296,6 +296,11 @@ def estimate_required_grade(student_id: str, subject_code: str, semester: str, p
 
     if required_grade_pending < 0:
         return 0.0
+    
+    has_recorded_grades = any(activity.get("grade") is not None for activity in activities)
+    
+    if not has_recorded_grades:
+        return -2.0  # Special code for "no grades recorded yet"
 
     return required_grade_pending
 

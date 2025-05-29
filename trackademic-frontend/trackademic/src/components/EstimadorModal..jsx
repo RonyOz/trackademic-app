@@ -62,11 +62,19 @@ const EstimadorModal = ({ semester, subject_code, onClose }) => {
               Nota mínima promedio necesaria en las actividades restantes para
               aprobar:
             </p>
-            {estimaciones < 0 ? (
+            {estimaciones === -2 ? (
               <p className="text-warning">
                 No se puede calcular la nota mínima porque no hay notas
-                registradas aún. 📝
+                registradas aún. 💬
               </p>
+            ) : estimaciones === -1 ? (
+              <p className="text-error">
+                No es posible aprobar con las actividades restantes. 😞
+              </p>
+            ) : estimaciones === 0 ? (
+              <div className="text-success text-lg bg-base-200 p-4 rounded-lg">
+                🎉 ¡Ya tienes las notas necesarias para aprobar!
+              </div>
             ) : (
               <>
                 <p
