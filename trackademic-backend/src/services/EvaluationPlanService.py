@@ -17,9 +17,6 @@ def get_All() -> List[EvaluationPlan]:
     return result
 
 def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPlan:
-    """
-    Get a specific evaluation plan by student ID, subject code, and semester.
-    """
     evaluation_plan = db.evaluation_plans.find_one({
         "student_id": student_id,
         "subject_code": subject_code,
@@ -27,6 +24,9 @@ def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPla
     })
     if not evaluation_plan:
         raise HTTPException(status_code=404, detail="Evaluation plan not found")
+    
+    # Convert ObjectId to string explicitly
+    evaluation_plan['_id'] = str(evaluation_plan['_id'])
     return EvaluationPlan(**evaluation_plan)
 
 def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
@@ -196,6 +196,32 @@ def update_activity_in_plan(semester:str ,student_id: str, subject_code: str, ac
     )
 
     return {"message": "Activity updated successfully"}
+
+def delete_activity_from_plan(semester: str, student_id: str, subject_code: str, activity_name: str) -> dict:
+    """
+    Delete an activity from an evaluation plan.
+    """
+    plan = db.evaluation_plans.find_one({
+        "student_id": student_id,
+        "subject_code": subject_code,
+        "semester": semester
+    })
+
+    if not plan:
+        raise HTTPException(status_code=404, detail="Evaluation plan not found")
+
+    activities = plan.get("activities", [])
+    updated_activities = [a for a in activities if a.get("name") != activity_name]
+
+    if len(updated_activities) == len(activities):
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    db.evaluation_plans.update_one(
+        {"_id": plan["_id"]},
+        {"$set": {"activities": updated_activities}}
+    )
+
+    return {"message": "Activity deleted successfully"}
 
 def add_comment_to_plan(plan_id: str, comment: CommentIn) -> bool:
     """

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Path, HTTPException, Body, Query
 
-from src.services.EvaluationPlanService import get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan, add_comment_to_plan, get_plan, estimate_required_grade
+from src.services.EvaluationPlanService import delete_activity_from_plan, get_All, get_by_student_id, create_evaluation_plan, add_activities_to_plan, delete_evaluation_plan, get_by_subject_code, update_activity_in_plan, add_comment_to_plan, get_plan, estimate_required_grade
 
 from src.models.student_data import EvaluationPlan, EvaluationActivity, CommentIn
 
@@ -65,8 +65,19 @@ def delete_endpoint(subject_code: str, semester: str, student_id: str):
     return delete_evaluation_plan(subject_code, semester, student_id) 
 
 @router.patch("/{semester}/{subject_code}/{student_id}/activities")
-def patch_activity(semester:str, subject_code: str, student_id: str, name: str = Body(..., embed=True), new_data: dict = Body(..., embed=True)):
-    return update_activity_in_plan(semester, student_id, subject_code, name, new_data)
+def patch_activity(
+    semester: str, 
+    subject_code: str, 
+    student_id: str, 
+    name: str = Body(..., embed=True), 
+    new_data: dict = Body(..., embed=True)
+):
+    if new_data.get("_delete"):
+        # Handle deletion case
+        return delete_activity_from_plan(semester, student_id, subject_code, name)
+    else:
+        # Handle normal update case
+        return update_activity_in_plan(semester, student_id, subject_code, name, new_data)
 
 @router.get("/estimate-grade", response_model=float)
 def estimate_grade_endpoint(

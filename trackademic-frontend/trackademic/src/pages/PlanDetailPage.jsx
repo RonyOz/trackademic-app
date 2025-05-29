@@ -61,25 +61,40 @@ const PlanDetailPage = () => {
   };
 
   const confirmDelete = async () => {
-    const nuevasActividades = [...plan.activities];
-    nuevasActividades.splice(activityToDeleteIndex, 1);
+  if (activityToDeleteIndex === null || !plan) return;
 
-    try {
-      await updateActivity(semester, subjectCode, user.id, {
-        activities: nuevasActividades,
-      });
+  try {
+    const activityToDelete = plan.activities[activityToDeleteIndex];
+    
+    // Prepare the payload with a proper deletion flag
+    const payload = {
+      name: activityToDelete.name,
+      new_data: { _delete: true } // Send an object with deletion flag
+    };
 
-      setPlan({ ...plan, activities: nuevasActividades });
-      setShowDeleteModal(false);
-      setActivityToDeleteIndex(null);
-    } catch (err) {
-      console.error(
-        "Error al eliminar actividad:",
-        err.response?.data || err.message
-      );
-      alert("No se pudo eliminar la actividad.");
-    }
-  };
+    // Call the API to delete the activity
+    await updateActivity(semester, subjectCode, user.id, payload);
+
+    // Update local state to reflect the deletion
+    const updatedActivities = plan.activities.filter(
+      (_, index) => index !== activityToDeleteIndex
+    );
+    
+    setPlan({
+      ...plan,
+      activities: updatedActivities
+    });
+
+    // Close the modal and reset state
+    setShowDeleteModal(false);
+    setActivityToDeleteIndex(null);
+  } catch (err) {
+    console.error("Error deleting activity:", err);
+    alert("Error al eliminar la actividad. Por favor, inténtalo de nuevo.");
+  }
+};
+
+  
 
   return (
     <>
