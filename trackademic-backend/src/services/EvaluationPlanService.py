@@ -10,7 +10,11 @@ def get_All() -> List[EvaluationPlan]:
     Get all evaluation plans from the database.
     """
     evaluation_plans = db.evaluation_plans.find()
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    result = []
+    for plan in evaluation_plans:
+        plan['_id'] = str(plan['_id'])  # Convert ObjectId to string
+        result.append(EvaluationPlan(**plan))
+    return result
 
 def get_plan(student_id: str, subject_code: str, semester: str) -> EvaluationPlan:
     """
@@ -30,7 +34,7 @@ def get_by_student_id(student_id: str) -> List[EvaluationPlan]:
     Get evaluation plans by student ID.
     """
     evaluation_plans = db.evaluation_plans.find({"student_id": student_id})
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    return [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in evaluation_plans]
 
 def get_by_subject_code(subject_code: str) -> List[EvaluationPlan]:
     """
@@ -39,7 +43,7 @@ def get_by_subject_code(subject_code: str) -> List[EvaluationPlan]:
     evaluation_plans = list(db.evaluation_plans.find({"subject_code": subject_code}))
     if not evaluation_plans:
         return []
-    return [EvaluationPlan(**plan) for plan in evaluation_plans]
+    return [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in evaluation_plans]
 
 def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     """
@@ -58,7 +62,11 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
 
     evaluation_plan.average = calculate_average(evaluation_plan)
     db.evaluation_plans.insert_one(evaluation_plan.model_dump())
-    return evaluation_plan
+
+    inserted_id = db.evaluation_plans.insert_one(evaluation_plan.model_dump()).inserted_id
+    created_plan = db.evaluation_plans.find_one({"_id": inserted_id})
+    created_plan['_id'] = str(created_plan['_id'])
+    return created_plan
 
 def add_activities_to_plan(subject_code: str, semester: str, student_id: str,  activities: List[EvaluationActivity]) -> EvaluationPlan:
     """
@@ -86,6 +94,7 @@ def add_activities_to_plan(subject_code: str, semester: str, student_id: str,  a
     )
     
     updated_plan = db.evaluation_plans.find_one({"subject_code": subject_code, "semester": semester})
+    updated_plan['_id'] = str(updated_plan['_id'])
     return EvaluationPlan(**updated_plan)
 
 def delete_evaluation_plan(subject_code: str, semester: str, student_id: str) -> str:
@@ -303,7 +312,7 @@ def ordered_plans(semester: str) -> List[EvaluationPlan]:
         "semester": semester
     }).sort("subject_code")
 
-    result = [EvaluationPlan(**plan) for plan in plans]
+    result = [EvaluationPlan(**{**plan, '_id': str(plan['_id'])}) for plan in plans]
 
     result.sort(
         key=lambda x: max((a.percentage for a in x.activities), default=0),
