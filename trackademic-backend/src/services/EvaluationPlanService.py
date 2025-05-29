@@ -49,7 +49,8 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     subject = evaluation_plan.subject_code
     result = db.evaluation_plans.find_one({
         "subject_code": subject,
-        "semester": semester
+        "semester": semester,
+        "student_id": evaluation_plan.student_id
     })
 
     if result:
