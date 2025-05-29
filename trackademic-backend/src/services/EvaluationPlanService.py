@@ -45,6 +45,17 @@ def create_evaluation_plan(evaluation_plan: EvaluationPlan) -> EvaluationPlan:
     """
     Create a new evaluation plan in the database.
     """
+    semester = evaluation_plan.semester
+    subject = evaluation_plan.subject_code
+    result = db.evaluation_plans.find_one({
+        "subject_code": subject,
+        "semester": semester,
+        "student_id": evaluation_plan.student_id
+    })
+
+    if result:
+        raise HTTPException(status_code=400, detail=f"Evaluation plan for subject {subject} in semester {semester} already exists")
+
     evaluation_plan.average = calculate_average(evaluation_plan)
     db.evaluation_plans.insert_one(evaluation_plan.model_dump())
     return evaluation_plan
