@@ -12,7 +12,8 @@ import os
 
 # engine = create_engine(DATABASE_URL)
 
-DATABASE_URL = "postgresql://postgres:qJrTT5JzXjab259P@db.njxhlrmoinbjadcgtyut.supabase.co:5432/postgres"
+# DATABASE_URL = "postgresql://postgres:qJrTT5JzXjab259P@db.njxhlrmoinbjadcgtyut.supabase.co:5432/postgres"
+DATABASE_URL = "postgresql://postgres.njxhlrmoinbjadcgtyut:qJrTT5JzXjab259P@aws-0-us-east-2.pooler.supabase.com:6543/postgres"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
