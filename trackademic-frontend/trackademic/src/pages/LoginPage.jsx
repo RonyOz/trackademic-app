@@ -18,21 +18,29 @@ const LoginPage = () => {
 
   try {
     const res = await loginRequest({ email, password });
-    console.log("Respuesta login:", res); // 👀
-
+    console.log("FULL RESPONSE:", res); // Add this
+    console.log("Response data:", res.data); // Add this
+    
     const token = res?.data?.access_token;
+    console.log("Token received:", token); // Add this
+    
     if (!token) {
-      console.warn("No se recibió access_token:", res.data);
+      console.warn("No access_token received:", res.data);
       setError("Correo o contraseña inválidos");
       return;
     }
 
-    // The token is already part of res.data.access_token
-    // The AuthContext's login function will handle localStorage.
-    login(res.data); // Pass the whole response data to AuthContext
+    // Add this debug line:
+    console.log("Before calling login()");
+    
+    login(res.data);
+    
+    // Add this debug line:
+    console.log("After calling login() - checking auth state");
+    
     navigate("/dashboard");
   } catch (err) {
-    console.error("Error en login:", err.response?.data || err.message);
+    console.error("Login error:", err.response?.data || err.message);
     setError("Correo o contraseña inválidos");
   } finally {
     setLoading(false);

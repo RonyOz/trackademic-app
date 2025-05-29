@@ -26,25 +26,27 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    const token = userData.token || userData.access_token;
-    const userId = userData.id || userData.user_id; // Adjust based on your API response
-    const userSemester = userData.semester || userData.user_semester; // Adjust based on your API response
+  const token = userData.token || userData.access_token;
+  const userId = userData.id || userData.user_id;
 
-    if (!token || !userId || !userSemester) { // Ensure all necessary data is present
-      console.warn("Missing token, user ID, or semester in login data.");
-      return;
-    }
+  if (!token || !userId) { // Only require token and user ID
+    console.warn("Missing token or user ID in login data.");
+    return;
+  }
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("userId", userId); // Store user ID
-    localStorage.setItem("semester", userSemester); // Store semester
+  localStorage.setItem("token", token);
+  localStorage.setItem("userId", userId);
+  
+  // Set semester if provided, otherwise use a default
+  const userSemester = userData.semester || "default_semester";
+  localStorage.setItem("semester", userSemester);
 
-    setUser({
-      token: token,
-      id: userId,
-      semester: userSemester,
-    });
-  };
+  setUser({
+    token: token,
+    id: userId,
+    semester: userSemester,
+  });
+};
 
   const logout = () => {
     localStorage.removeItem("token");
